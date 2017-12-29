@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
 #include <thread>
 
 using namespace std;
@@ -56,29 +55,11 @@ int main(int argc , char *argv[])
     thread input(inputAndSend, sockfd);
     input.detach();
 
-    // fd_set readfd, writefd;
-    // int sd, activity;
-
     while (1)
     {
-      // FD_ZERO(&readfd);
-      // FD_SET(sockfd, &readfd);
-      // FD_ZERO(&writefd);
-      // FD_SET(sockfd, &writefd);
-
-      // activity = select(sockfd + 1, &readfd, &writefd, nullptr, nullptr);
-
-      // if ((activity < 0) && (errno!=EINTR))  
-      // {  
-      //     printf("select error");  
-      // }
-
-      // if (FD_ISSET(sockfd, &readfd))
-      // {
         int re = recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
         receiveMessage[re] = '\0';
         cout << receiveMessage << endl;
-      // }
     }
 
 
