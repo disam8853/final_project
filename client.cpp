@@ -42,8 +42,8 @@ int main(int argc , char *argv[])
     info.sin_port = htons(8888);
 
     //Send a message to server
-    char message[100];
-    char receiveMessage[100];
+    char message[1000];
+    char receiveMessage[1000];
 
 
     int sc = connect(sockfd,(struct sockaddr *)&info,sizeof(info));
@@ -60,6 +60,10 @@ int main(int argc , char *argv[])
         int re = recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
         receiveMessage[re] = '\0';
         cout << receiveMessage << endl;
+        // if (!strcmp(receiveMessage, "quit"))
+        // {
+        //   break;
+        // }
     }
 
 
