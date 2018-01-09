@@ -95,24 +95,24 @@ int main(int argc , char *argv[])
     {
       new_socket = accept(master_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen);
       client_socket[i] = new_socket;
-      message = "連線成功\n等待其他玩家連線中...\n\0";
+      message = "歡迎來到天黑請閉眼\n連線成功\n等待其他玩家連線中...\n\n\0";
 
       send(new_socket, message, strlen(message), 0);
     }
     // 所有玩家連線成功
     for (int i = 0; i < playersCount; ++i)
     {
-       message = "所有玩家已連線\n遊戲即將開始\n請等待其他玩家輸入名字\n\0";
+       message = "所有玩家已連線\n遊戲即將開始\n請等待其他玩家輸入名字\n\n\0";
 
        send(client_socket[i], message, strlen(message), 0);
     }
     // 接收玩家輸入的名字並儲存
     for (int i = 0; i < playersCount; ++i)
     {
-      message = "請輸入你的名字：\0";
+      message = "請輸入你的名字：\n\0";
       send(client_socket[i], message, strlen(message), 0);
       int k = read(client_socket[i], buffer, 1024);
-      message = "名字輸入成功！\n正在等待所有玩家輸入名字...\n\0";
+      message = "名字輸入成功！\n正在等待所有玩家輸入名字...\n\n\0";
       send(client_socket[i], message, strlen(message), 0);
       
       buffer[k] = '\0';
@@ -173,17 +173,17 @@ int main(int argc , char *argv[])
     {
       if (index[i] == 1)
       {
-        message = "你是平民！\n\0";
+        message = "\n***你是平民！***\n\n\0";
         send(client_socket[i], message, strlen(message), 0);
       }
       else if (index[i] == 2)
       {
-        message = "你是警察！\n\0";
+        message = "\n***你是警察！***\n\n\0";
         send(client_socket[i], message, strlen(message), 0);
       }
       else if (index[i] == 3)
       {
-        message = "你是殺手！\n\0";
+        message = "\n***你是殺手！***\n\n\0";
         send(client_socket[i], message, strlen(message), 0);
       }
     }
@@ -193,9 +193,9 @@ int main(int argc , char *argv[])
       // 天黑
       for (int i = 0; i < playersCount; ++i)
       {
-        message = "天黑了\n\0";
+        message = "天黑了\n\n\0";
         send(client_socket[i], message, strlen(message), 0);
-        message = "請殺手輸入要殺的玩家編號\0";
+        message = "請殺手輸入要殺的玩家編號\n\0";
         send(client_socket[i], message, strlen(message), 0);
       }
       // 殺手殺人
@@ -207,7 +207,12 @@ int main(int argc , char *argv[])
           killed = buffer[0] - '0';
           while (killed == i || alive[killed] == 0 || killed >= playersCount)
           {
-            message = "你輸入錯囉！請再輸入一次\n\0";
+            if (check == i)
+              message = "不要殺自己喔～請再輸入一次\n\0";
+            else if (alive[check] == 0)
+              message = "他已經屎了喔～請再輸入一次\n\0";
+            else if (check >= playersCount)
+              message = "沒有這個人～請再投一次\n\0";
             send(client_socket[i], message, strlen(message), 0);
             read(client_socket[i], buffer, 1024);
             killed = buffer[0] - '0';
@@ -218,7 +223,7 @@ int main(int argc , char *argv[])
         }
       }
 
-      message = "殺手殺完人了！請警察輸入要指認的玩家編號\0";
+      message = "殺手殺完人了！請警察輸入要指認的玩家編號\n\0";
       for (int i = 0; i < playersCount; ++i)
         send(client_socket[i], message, strlen(message), 0);
 
@@ -231,16 +236,28 @@ int main(int argc , char *argv[])
           {
             check = read(client_socket[i], buffer, 1024);
             check = buffer[0] - '0';
+            while (check == i || alive[check] == 0 || check >= playersCount)
+            {
+              if (check == i)
+                message = "不要指認自己喔～請再輸入一次\n\0";
+              else if (alive[check] == 0)
+                message = "他已經屎了喔～請再輸入一次\n\0";
+              else if (check >= playersCount)
+                message = "沒有這個人～請再投一次\n\0";
+              send(client_socket[i], message, strlen(message), 0);
+              read(client_socket[i], buffer, 1024);
+              check = buffer[0] - '0';
+            }
             if (index[check] == 1)
-              message = "他是平民！\n\0";
+              message = "\n***他是平民！***\n\n\0";
             else if (index[check] == 3)
-              message = "他是殺手！！！\n\0";
+              message = "\n***他是殺手！！！***\n\n\0";
             send(client_socket[i], message, strlen(message), 0);
             break;
           }
           else
           {
-            message = "你已經屎了\n\0";
+            message = "\n***你已經屎了***\n\n\0";
             send(client_socket[i], message, strlen(message), 0);
           }
         }
@@ -262,29 +279,34 @@ int main(int argc , char *argv[])
       }
 
       // 投票
-      int vote[6] = {-1};
+      int vote[6] = {-1,-1,-1,-1,-1,-1};
       for (int i = 0; i < playersCount; ++i)
       {
         if (alive[i] == 1)
         {
-          message = "請投票，你覺得誰是殺手？\0";
+          message = "請投票，你覺得誰是殺手？\n\0";
           send(client_socket[i], message, strlen(message), 0);
           read(client_socket[i], buffer, 1024);
           int k = buffer[0] - '0';
           while (alive[k] == 0 || k == i || k >= playersCount)
           {
-            message = "你投錯了喔～請再投一次\0";
+            if (alive[k] == 0)
+              message = "他已經屎了喔～請再投一次\n\0";
+            else if (k == i)
+              message = "不要投給自己喔～請再投一次\n\0";
+            else if (k <= playersCount)
+              message = "沒有這個人～請再投一次\n\0";
             send(client_socket[i], message, strlen(message), 0);
             read(client_socket[i], buffer, 1024);
             k = buffer[0] - '0';
           }
           vote[i] = k;
-          message = "已成功投票！\n\0";
+          message = "已成功投票！\n\n\0";
           send(client_socket[i], message, strlen(message), 0);
         }
         else
         {
-          message = "你已經屎了\n\0";
+          message = "\n***你已經屎了！***\n\n\0";
           send(client_socket[i], message, strlen(message), 0);
         }
       }
@@ -326,17 +348,17 @@ int main(int argc , char *argv[])
           else
           {
             if (j == 0)
-              message = "0號已經屎了！\0";
+              message = "0號已經屎了！\n\0";
             else if (j == 1)
-              message = "1號已經屎了！\0";
+              message = "1號已經屎了！\n\0";
             else if (j == 2)
-              message = "2號已經屎了！\0";
+              message = "2號已經屎了！\n\0";
             else if (j == 3)
-              message = "3號已經屎了！\0";
+              message = "3號已經屎了！\n\0";
             else if (j == 4)
-              message = "4號已經屎了！\0";
+              message = "4號已經屎了！\n\0";
             else if (j == 5)
-              message = "5號已經屎了！\0";
+              message = "5號已經屎了！\n\0";
             send(client_socket[i], message, strlen(message), 0);
           }
         }
@@ -344,7 +366,8 @@ int main(int argc , char *argv[])
       // 計算最高票
       int ticket[6] = {0};
       for (int i = 0; i < playersCount; ++i)
-        ticket[vote[i]]++;
+        if (vote[i] != -1)
+          ticket[vote[i]]++;
       int max_tic = 0, max_player = -1;
       for (int i = 0; i < playersCount; ++i)
       {
@@ -377,7 +400,7 @@ int main(int argc , char *argv[])
           send(client_socket[i], message, strlen(message), 0);
         if (index[max_player] == 3)
         {
-          message = "殺手被強制出局了，恭喜正義的一方獲得勝利！\0";
+          message = "殺手被強制出局了，恭喜正義的一方獲得勝利！\n\0";
           for (int i = 0; i < playersCount; ++i)
             send(client_socket[i], message, strlen(message), 0);
           break;
@@ -391,138 +414,12 @@ int main(int argc , char *argv[])
       }
       if (people == 2)
       {
-        message = "殺手獲得最後的勝利！遊戲結束\n\0";
+        message = "剩下2名玩家\n殺手獲得最後的勝利！遊戲結束\n\0";
         for (int i = 0; i < playersCount; ++i)
           send(client_socket[i], message, strlen(message), 0);
+        sleep(5);
+        break;
       }
-    }
-
-
-
-
-
-
-
-
-
-
-    while(TRUE)  
-    {  
-        //clear the socket set 
-        FD_ZERO(&readfds);  
-    
-        //add master socket to set 
-        FD_SET(master_socket, &readfds);  
-        max_sd = master_socket;  
-            
-        //add child sockets to set 
-        for ( i = 0 ; i < max_clients ; i++)  
-        {  
-            //socket descriptor 
-            sd = client_socket[i];  
-                
-            //if valid socket descriptor then add to read list 
-            if(sd > 0)  
-                FD_SET( sd , &readfds);  
-                
-            //highest file descriptor number, need it for the select function 
-            if(sd > max_sd)  
-                max_sd = sd;  
-        }  
-    
-        //wait for an activity on one of the sockets , timeout is NULL , 
-        //so wait indefinitely 
-        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);  
-      
-        if ((activity < 0) && (errno!=EINTR))  
-        {  
-            printf("select error");  
-        }  
-            
-        //If something happened on the master socket , 
-        //then its an incoming connection 
-        if (FD_ISSET(master_socket, &readfds) && connection <= 6)  
-        {  
-            if ((new_socket = accept(master_socket, 
-                    (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)  
-            {  
-                perror("accept");  
-                exit(EXIT_FAILURE);
-            }  
-            
-            //inform user of socket number - used in send and receive commands 
-            std::cout << "New connection , socket fd is "<<new_socket<<" , ip is : "<<inet_ntoa(address.sin_addr)<<" , port : " << ntohs(address.sin_port) << "\n";
-          
-            //send new connection greeting message 
-            if( send(new_socket, message, strlen(message), 0) != strlen(message) )  
-            {  
-                perror("send");  
-            }  
-                
-            puts("Welcome message sent successfully");
-            connection++;
-
-            // 新增新玩家
-            //add new socket to array of sockets 
-            for (i = 0; i < max_clients; i++)  
-            {  
-                //if position is empty 
-                if( client_socket[i] == 0 )  
-                {  
-                    client_socket[i] = new_socket;  
-                    printf("Adding to list of sockets as %d\n" , i);  
-                        
-                    break;  
-                }
-            }  
-        }
-
-            
-        //else its some IO operation on some other socket
-        for (i = 0; i < max_clients; i++)  
-        {  
-            sd = client_socket[i];  
-                
-            if (FD_ISSET( sd , &readfds))  
-            {  
-                //Check if it was for closing , and also read the 
-                //incoming message 
-                if ((valread = read( sd , buffer, 1024)) == 0)  
-                {  
-                    //Somebody disconnected , get his details and print 
-                    getpeername(sd , (struct sockaddr*)&address , \
-                        (socklen_t*)&addrlen);  
-                    printf("Host disconnected , ip %s , port %d \n" , 
-                          inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
-                        
-                    //Close the socket and mark as 0 in list for reuse 
-                    close( sd );  
-                    client_socket[i] = 0;  
-                }  
-                    
-                //Echo back the message that came in 
-                else
-                {
-                    //set the string terminating NULL byte on the end 
-                    //of the data read 
-                    buffer[valread] = '\0';
-                    std::string mes = std::to_string(sd);
-                    mes.append(": ");
-                    mes.append(buffer);
-                    std::cout << mes << "\n";
-                    strcpy(buffer, mes.c_str());
-                    // send to other clients
-                    for (int i = 0; i < max_clients; ++i)
-                    {
-                      int sk = client_socket[i];
-                      if (sk != sd)
-                      {
-                        send(sk , buffer, strlen(buffer) , 0);
-                      }
-                    }
-                }  
-            }  
-        }  
     }
 
     close(master_socket);

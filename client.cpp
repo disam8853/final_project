@@ -59,11 +59,13 @@ int main(int argc , char *argv[])
     {
         int re = recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
         receiveMessage[re] = '\0';
-        cout << receiveMessage << endl;
-        // if (!strcmp(receiveMessage, "quit"))
-        // {
-        //   break;
-        // }
+        cout << receiveMessage;
+        if (!strcmp(receiveMessage, "殺手獲得最後的勝利！遊戲結束\n\0") || !strcmp(receiveMessage, "殺手被強制出局了，恭喜正義的一方獲得勝利！\n\0"))
+        {
+          close(sockfd);
+          cout << "ㄅㄅ～";
+          return 0;
+        }
     }
 
 
