@@ -294,32 +294,51 @@ int main(int argc , char *argv[])
       {
         for (int j = 0; j < playersCount; ++j)
         {
-          if (j == 0)
-            message = "0號投給\0";
-          else if (j == 1)
-            message = "1號投給\0";
-          else if (j == 2)
-            message = "2號投給\0";
-          else if (j == 3)
-            message = "3號投給\0";
-          else if (j == 4)
-            message = "4號投給\0";
-          else if (j == 5)
-            message = "5號投給\0";
-          send(client_socket[i], message, strlen(message), 0);
-          if (vote[j] == 0)
-            message = "0號\n\0";
-          else if (vote[j] == 1)
-            message = "1號\n\0";
-          else if (vote[j] == 2)
-            message = "2號\n\0";
-          else if (vote[j] == 3)
-            message = "3號\n\0";
-          else if (vote[j] == 4)
-            message = "4號\n\0";
-          else if (vote[j] == 5)
-            message = "5號\n\0";
-          send(client_socket[i], message, strlen(message), 0);
+          if (alive[j] == 1)
+          {
+            if (j == 0)
+              message = "0號投給\0";
+            else if (j == 1)
+              message = "1號投給\0";
+            else if (j == 2)
+              message = "2號投給\0";
+            else if (j == 3)
+              message = "3號投給\0";
+            else if (j == 4)
+              message = "4號投給\0";
+            else if (j == 5)
+              message = "5號投給\0";
+            send(client_socket[i], message, strlen(message), 0);
+            if (vote[j] == 0)
+              message = "0號\n\0";
+            else if (vote[j] == 1)
+              message = "1號\n\0";
+            else if (vote[j] == 2)
+              message = "2號\n\0";
+            else if (vote[j] == 3)
+              message = "3號\n\0";
+            else if (vote[j] == 4)
+              message = "4號\n\0";
+            else if (vote[j] == 5)
+              message = "5號\n\0";
+            send(client_socket[i], message, strlen(message), 0);
+          }
+          else
+          {
+            if (j == 0)
+              message = "0號已經屎了！\0";
+            else if (j == 1)
+              message = "1號已經屎了！\0";
+            else if (j == 2)
+              message = "2號已經屎了！\0";
+            else if (j == 3)
+              message = "3號已經屎了！\0";
+            else if (j == 4)
+              message = "4號已經屎了！\0";
+            else if (j == 5)
+              message = "5號已經屎了！\0";
+            send(client_socket[i], message, strlen(message), 0);
+          }
         }
       }
       // 計算最高票
@@ -370,7 +389,12 @@ int main(int argc , char *argv[])
         for (int i = 0; i < playersCount; ++i)
           send(client_socket[i], message, strlen(message), 0);
       }
-
+      if (people == 2)
+      {
+        message = "殺手獲得最後的勝利！遊戲結束\n\0";
+        for (int i = 0; i < playersCount; ++i)
+          send(client_socket[i], message, strlen(message), 0);
+      }
     }
 
 
