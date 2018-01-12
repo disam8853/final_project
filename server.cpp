@@ -84,7 +84,6 @@ int main(int argc , char *argv[])
 
     int index[6] = {1,1,1,1,1,1}; // 玩家身份 1=平民 2=警察 3=殺手
     char name[6][100] = {0}; // 儲存每個玩家所輸入的名字
-    char* infor; // 所有玩家的公開資訊
     bool gameStart = false; // 是否開始遊戲
     bool alive[6]={1,1,1,1,1,1};//記錄誰還活著
     int killed; // 被殺的玩家編號
